@@ -37,8 +37,8 @@ set -e
 VERSION=&quot;0.10&quot;
 
 CONTAINER_ID=$(docker run -d -v &quot;${WORKSPACE}&quot;:/workspace -w /workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/nodejs &quot;$(cat &lt;&lt;EOL
-source /.nvm/nvm.sh
-nvm use ${VERSION}
+export PATH=/home/worker/.nodebrew/current/bin:$PATH
+nodebrew use $VERSION
 npm install
 npm test
 EOL

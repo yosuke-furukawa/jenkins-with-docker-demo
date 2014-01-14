@@ -35,54 +35,56 @@ set -e
 
 LANGUAGE=`cat ${WORKSPACE}/.travis.yml | shyaml get-value language`
 VERSIONS_TEMP=`cat ${WORKSPACE}/.travis.yml | shyaml get-values ${LANGUAGE}`
-BEFORE_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values-0 before_script | perl -pe 's/\0/ \&\& /g' | perl -pe 's/\&\& $//g'`
-AFTER_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values-0 after_script | perl -pe 's/\0/ \&\& /g' | perl -pe 's/\&\& $//g'`
-BEFORE_INSTALL=`cat ${WORKSPACE}/.travis.yml | shyaml get-values-0 before_script | perl -pe 's/\0/ \&\& /g' | perl -pe 's/\&\& $//g'`
+BEFORE_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values before_script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
+TEST_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
+TEST_SCRIPT=${TEST_SCRIPT:-&apos;npm test&apos;}
+AFTER_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values after_script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
+BEFORE_INSTALL=`cat ${WORKSPACE}/.travis.yml | shyaml get-values before_script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
 
 VERSIONS=(${VERSIONS_TEMP})
 
-for ((i = 0; i < "${#VERSIONS[@]}"; i++)); do
-    VERSION="${VERSIONS[$i]}"
-    _WORKSPACE="${WORKSPACE}.${BUILD_NUMBER}.${VERSION}"
-    cp -R "${WORKSPACE}" "${_WORKSPACE}"
+for ((i = 0; i &lt; &quot;${#VERSIONS[@]}&quot;; i++)); do
+    VERSION=&quot;${VERSIONS[$i]}&quot;
+    _WORKSPACE=&quot;${WORKSPACE}.${BUILD_NUMBER}.${VERSION}&quot;
+    cp -R &quot;${WORKSPACE}&quot; &quot;${_WORKSPACE}&quot;
 
-    CONTAINER_ID=$(docker run -d -v "${_WORKSPACE}":/workspace -w /workspace -u worker -e "HOME=/home/worker" jenkins-with-docker/nodejs "$(cat <<EOL
+    CONTAINER_ID=$(docker run -d -v &quot;${_WORKSPACE}&quot;:/workspace -w /workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/nodejs &quot;$(cat &lt;&lt;EOL
 export PATH=/home/worker/.nodebrew/current/bin:$PATH
-nodebrew use "${VERSION}"
+nodebrew use &quot;${VERSION}&quot;
 ${BEFORE_INSTALL}
 npm install
 ${BEFORE_SCRIPT}
-npm test
+${TEST_SCRIPT}
 ${AFTER_SCRIPT}
 EOL
-)"
+)&quot;
 )
-    echo "-----> Started Build: ${VERSION}"
-    echo "CONTAINER_ID: ${CONTAINER_ID}"
-    echo "WORKSPACE: ${_WORKSPACE}"
+    echo &quot;-----&gt; Started Build: ${VERSION}&quot;
+    echo &quot;CONTAINER_ID: ${CONTAINER_ID}&quot;
+    echo &quot;WORKSPACE: ${_WORKSPACE}&quot;
     echo
 
     sleep 3
 
-    CONTAINER_IDS="${CONTAINER_IDS} ${CONTAINER_ID}"
+    CONTAINER_IDS=&quot;${CONTAINER_IDS} ${CONTAINER_ID}&quot;
 done
 
-EXIT_STATUSES="$(docker wait ${CONTAINER_IDS})"
+EXIT_STATUSES=&quot;$(docker wait ${CONTAINER_IDS})&quot;
 
-echo "-----> Results"
+echo &quot;-----&gt; Results&quot;
 
 CONTAINER_IDS_ARRAY=(`echo ${CONTAINER_IDS}`)
 IS_FAILED=0
 i=0; for EXIT_STATUS in ${EXIT_STATUSES}; do
-    STARTED_AT=$(docker inspect "${CONTAINER_IDS_ARRAY[$i]}" | jq -r ".[0].State.StartedAt")
-    FINISHED_AT=$(docker inspect "${CONTAINER_IDS_ARRAY[$i]}" | jq -r ".[0].State.FinishedAt")
-    TIME="$(expr `date -d "${FINISHED_AT}" +%s` - `date -d "${STARTED_AT}" +%s`)"
+    STARTED_AT=$(docker inspect &quot;${CONTAINER_IDS_ARRAY[$i]}&quot; | jq -r &quot;.[0].State.StartedAt&quot;)
+    FINISHED_AT=$(docker inspect &quot;${CONTAINER_IDS_ARRAY[$i]}&quot; | jq -r &quot;.[0].State.FinishedAt&quot;)
+    TIME=&quot;$(expr `date -d &quot;${FINISHED_AT}&quot; +%s` - `date -d &quot;${STARTED_AT}&quot; +%s`)&quot;
 
-    if [[ "${EXIT_STATUS}" > 0 ]]; then
-        echo -e "\e[1;31m✘\e[m	${VERSIONS[$i]}	[${TIME} sec]"
-    else
-        echo -e "\e[1;32m✔\e[m	${VERSIONS[$i]}	[${TIME} sec]"
+    if [[ &quot;${EXIT_STATUS}&quot; &gt; 0 ]]; then
+        echo -e &quot;\e[1;31m✘\e[m        ${VERSIONS[$i]}        [${TIME} sec]&quot;
         IS_FAILED=1
+    else
+        echo -e &quot;\e[1;32m✔\e[m        ${VERSIONS[$i]}        [${TIME} sec]&quot;
     fi
 
     i=$((i + 1))
@@ -90,11 +92,13 @@ done
 
 i=0; for CONTAINER_ID in ${CONTAINER_IDS[@]}; do
     echo
-    echo "---> ${VERSIONS[$i]}"
+    echo &quot;---&gt; ${VERSIONS[$i]}&quot;
     docker logs ${CONTAINER_ID}
 
     i=$((i + 1))
 done
+
+docker rm `docker ps -a -q`
 
 exit ${IS_FAILED}</command>
     </hudson.tasks.Shell>

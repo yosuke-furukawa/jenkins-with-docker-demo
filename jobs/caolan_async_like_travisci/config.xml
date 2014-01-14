@@ -42,8 +42,8 @@ for ((i = 0; i &lt; &quot;${#VERSIONS[@]}&quot;; i++)); do
     cp -R &quot;${WORKSPACE}&quot; &quot;${_WORKSPACE}&quot;
 
     CONTAINER_ID=$(docker run -d -v &quot;${_WORKSPACE}&quot;:/workspace -w /workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/nodejs &quot;$(cat &lt;&lt;EOL
-source /.nvm/nvm.sh
-nvm use &quot;${VERSION}&quot;
+export PATH=/home/worker/.nodebrew/current/bin:$PATH
+nodebrew use &quot;${VERSION}&quot;
 npm install
 npm test
 EOL
@@ -72,9 +72,9 @@ i=0; for EXIT_STATUS in ${EXIT_STATUSES}; do
 
     if [[ &quot;${EXIT_STATUS}&quot; &gt; 0 ]]; then
         echo -e &quot;\e[1;31m✘\e[m	${VERSIONS[$i]}	[${TIME} sec]&quot;
+        IS_FAILED=1
     else
         echo -e &quot;\e[1;32m✔\e[m	${VERSIONS[$i]}	[${TIME} sec]&quot;
-        IS_FAILED=1
     fi
 
     i=$((i + 1))

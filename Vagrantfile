@@ -1,6 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+
 $script = <<SCRIPT
 set -x
 
@@ -39,13 +40,15 @@ https://updates.jenkins-ci.org/download/plugins/ansicolor/0.3.1/ansicolor.hpi
 EOL
 
 # Setup jenkins jobs
-sudo -u jenkins cp -R /vagrant/jobs/* /var/lib/jenkins/jobs/
+# sudo -u jenkins cp -R /vagrant/jobs/* /var/lib/jenkins/jobs/
+git clone https://github.com/yosuke-furukawa/jenkins-with-docker-demo.git /jenkins-docker
+sudo -u jenkins cp -R /jenkins-docker/jobs/* /var/lib/jenkins/jobs/
 
 # Restart jenkins service
 sudo service jenkins restart
 
 # Build Docker image
-sudo docker build -t jenkins-with-docker/nodejs /vagrant
+sudo docker build -t jenkins-with-docker/nodejs /jenkins-docker
 SCRIPT
 
 Vagrant.configure('2') do |config|
