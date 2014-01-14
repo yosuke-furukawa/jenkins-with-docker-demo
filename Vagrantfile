@@ -15,7 +15,10 @@ sudo sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.
 sudo apt-get -q update
 sudo apt-get -y upgrade
 
-sudo apt-get -y install build-essential wget curl git-core jq
+sudo apt-get -y install build-essential wget curl git-core jq python-pip
+
+# Install shyaml
+sudo pip install shyaml
 
 # Install Jenkins
 sudo useradd -u 45678 -g 65534 -m -d /var/lib/jenkins -s /bin/bash jenkins
