@@ -33,29 +33,18 @@
       <command>#!/usr/bin/env bash
 set -e
 
-LANGUAGE=`cat ${WORKSPACE}/.travis.yml | shyaml get-value language`
-VERSIONS_TEMP=`cat ${WORKSPACE}/.travis.yml | shyaml get-values ${LANGUAGE}`
-BEFORE_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values before_script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
-TEST_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
-TEST_SCRIPT=${TEST_SCRIPT:-&apos;npm test&apos;}
-AFTER_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values after_script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
-BEFORE_INSTALL=`cat ${WORKSPACE}/.travis.yml | shyaml get-values before_script 2&gt;/dev/null | perl -e &apos;chomp (@L=&lt;&gt;); print join &quot; &amp;&amp; &quot;, @L&apos;`
+source /jenkins-docker/travis_version.sh
 
 VERSIONS=(${VERSIONS_TEMP})
 
 for ((i = 0; i &lt; &quot;${#VERSIONS[@]}&quot;; i++)); do
     VERSION=&quot;${VERSIONS[$i]}&quot;
     _WORKSPACE=&quot;${WORKSPACE}.${BUILD_NUMBER}.${VERSION}&quot;
+    source /jenkins-docker/travis_script.sh
     cp -R &quot;${WORKSPACE}&quot; &quot;${_WORKSPACE}&quot;
 
     CONTAINER_ID=$(docker run -d -v &quot;${_WORKSPACE}&quot;:/workspace -w /workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/nodejs &quot;$(cat &lt;&lt;EOL
-export PATH=/home/worker/.nodebrew/current/bin:$PATH
-nodebrew use &quot;${VERSION}&quot;
-${BEFORE_INSTALL}
-npm install
-${BEFORE_SCRIPT}
-${TEST_SCRIPT}
-${AFTER_SCRIPT}
+$SCRIPT
 EOL
 )&quot;
 )
