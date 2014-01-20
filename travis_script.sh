@@ -3,7 +3,7 @@
 BEFORE_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values before_script 2>/dev/null | perl -e 'chomp (@L=<>); print join " && ", @L'`
 TEST_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values script 2>/dev/null | perl -e 'chomp (@L=<>); print join " && ", @L'`
 AFTER_SCRIPT=`cat ${WORKSPACE}/.travis.yml | shyaml get-values after_script 2>/dev/null | perl -e 'chomp (@L=<>); print join " && ", @L'`
-BEFORE_INSTALL=`cat ${WORKSPACE}/.travis.yml | shyaml get-values before_script 2>/dev/null | perl -e 'chomp (@L=<>); print join " && ", @L'`
+BEFORE_INSTALL=`cat ${WORKSPACE}/.travis.yml | shyaml get-values before_install 2>/dev/null | perl -e 'chomp (@L=<>); print join " && ", @L'`
 
 case ${LANGUAGE} in
   node_js)
