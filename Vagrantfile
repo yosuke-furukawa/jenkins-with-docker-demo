@@ -48,7 +48,7 @@ sudo -u jenkins cp -R /jenkins-docker/jobs/* /var/lib/jenkins/jobs/
 sudo service jenkins restart
 
 # Build Docker image
-sudo docker build -t jenkins-with-docker/nodejs /jenkins-docker
+sudo docker build -t jenkins-with-docker/node_js /jenkins-docker/node_js
 SCRIPT
 
 Vagrant.configure('2') do |config|

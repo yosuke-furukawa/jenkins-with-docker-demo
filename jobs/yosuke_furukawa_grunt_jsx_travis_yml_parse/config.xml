@@ -43,8 +43,13 @@ for ((i = 0; i &lt; &quot;${#VERSIONS[@]}&quot;; i++)); do
     source /jenkins-docker/travis_script.sh
     cp -R &quot;${WORKSPACE}&quot; &quot;${_WORKSPACE}&quot;
 
-    CONTAINER_ID=$(docker run -d -v &quot;${_WORKSPACE}&quot;:/workspace -w /workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/nodejs &quot;$(cat &lt;&lt;EOL
-$SCRIPT
+    CONTAINER_ID=$(docker run -d -v &quot;${_WORKSPACE}&quot;:/workspace -w /workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/${LANGUAGE} &quot;$(cat &lt;&lt;EOL
+$VERSION_SCRIPT
+$BEFORE_INSTALL
+$INSTALL_SCRIPT
+$BEFORE_SCRIPT
+$TEST_SCRIPT
+$AFTER_SCRIPT
 EOL
 )&quot;
 )
