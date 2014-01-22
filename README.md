@@ -13,7 +13,7 @@ Slide URL: [http://www.slideshare.net/techblogyahoo/jenkins-withdocker-131220](h
 
 ```
 % vagrant plugin install --plugin-source https://rubygems.org/ --plugin-prerelease vagrant-vbguest
-% git clone https://github.com/ydnjp/jenkins-with-docker-demo.git; cd jenkins-with-docker-demo
+% git clone https://github.com/yosuke-furukawa/jenkins-with-docker-demo.git; cd jenkins-with-docker-demo
 % vagrant up
 ```
 
