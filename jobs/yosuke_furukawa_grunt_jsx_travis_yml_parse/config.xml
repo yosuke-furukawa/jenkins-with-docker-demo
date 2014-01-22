@@ -8,7 +8,7 @@
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url>https://github.com/yosuke-furukawa/grunt-jsx.git</url>
+        <url>https://github.com/sasaplus1/base62.js.git</url>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -43,7 +43,8 @@ for ((i = 0; i &lt; &quot;${#VERSIONS[@]}&quot;; i++)); do
     source /jenkins-docker/travis_script.sh
     cp -R &quot;${WORKSPACE}&quot; &quot;${_WORKSPACE}&quot;
 
-    CONTAINER_ID=$(docker run -d -v &quot;${_WORKSPACE}&quot;:/workspace -w /workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/${LANGUAGE} &quot;$(cat &lt;&lt;EOL
+    CONTAINER_ID=$(docker run -d -v &quot;${_WORKSPACE}&quot;:/home/worker/workspace -w /home/worker/workspace -u worker -e &quot;HOME=/home/worker&quot; jenkins-with-docker/${LANGUAGE} &quot;$(cat &lt;&lt;EOL
+cp -r /home/worker/workspace/* .. &amp;&amp; cd ..
 $VERSION_SCRIPT
 $BEFORE_INSTALL
 $INSTALL_SCRIPT
